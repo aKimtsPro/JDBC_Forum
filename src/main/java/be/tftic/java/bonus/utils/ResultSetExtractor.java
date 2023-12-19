@@ -1,4 +1,4 @@
-package be.tftic.java.bonus;
+package be.tftic.java.bonus.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -163,7 +163,7 @@ public class PostDAO implements CrudDAO<Post, Long>{
         }
     }
 
-    private Post extractLine(ResultSet rs) throws SQLException {
+    public static Post extractLine(ResultSet rs) throws SQLException {
         if( rs.isAfterLast() || rs.isBeforeFirst() )
             throw new IllegalStateException("ResultSet is invalid state");
 

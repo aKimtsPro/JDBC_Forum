@@ -1,5 +1,6 @@
-package be.tftic.java.bonus;
+package be.tftic.java.bonus.daos;
 
+import be.tftic.java.bonus.utils.Query;
 import be.tftic.java.dao.CrudDAO;
 import be.tftic.java.entity.Post;
 

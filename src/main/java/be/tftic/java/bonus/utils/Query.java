@@ -1,4 +1,4 @@
-package be.tftic.java.bonus;
+package be.tftic.java.bonus.utils;
 
 import be.tftic.java.dao.ConnectionProvider;
 
