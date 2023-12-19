@@ -30,6 +30,7 @@ public class PostDAO implements CrudDAO<Post, Long>{
         }
     }
 
+
     @Override
     public List<Post> getAll() {
         String query = "SELECT * FROM Post";
@@ -72,15 +73,95 @@ public class PostDAO implements CrudDAO<Post, Long>{
     }
 
     @Override
-    public void update(Long aLong, Post entity) {
+    public void update(Long id, Post entity) {
+        String query = """
+            UPDATE post
+            SET
+                title = ?,
+                content = ?
+            WHERE
+                id= ?
+        """;
 
+        try(
+            Connection co = ConnectionProvider.getConnection();
+            PreparedStatement preparedStatement = co.prepareStatement(query);
+        ){
+
+            preparedStatement.setString(1, entity.getTitle());
+            preparedStatement.setString(2, entity.getContent());
+            preparedStatement.setLong(3, id);
+            preparedStatement.executeUpdate();
+        }
+        catch(SQLException ex){
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
-    public Optional<Post> delete(Long aLong) {
-        return Optional.empty();
+    public Optional<Post> delete(Long id) {
+        Optional<Post> postOptional = getOne(id);
+
+        if( postOptional.isPresent() ){
+            String query = "DELETE FROM post WHERE id = ?";
+            try(
+                    Connection co = ConnectionProvider.getConnection();
+                    PreparedStatement stmt = co.prepareStatement(query);
+            ){
+                stmt.setLong(1, id);
+                stmt.executeUpdate();
+                return postOptional;
+            }
+            catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        else
+            return Optional.empty();
     }
 
+    public Optional<Post> deleteVReturning(Long id) {
+        String query = "DELETE FROM post WHERE id = ? RETURNING *";
+        try(
+                Connection co = ConnectionProvider.getConnection();
+                PreparedStatement stmt = co.prepareStatement(query);
+        ){
+            stmt.setLong(1, id);
+            try ( ResultSet rs = stmt.executeQuery() ){
+                if( rs.next() )
+                    return Optional.of( extractLine(rs));
+                else
+                    return Optional.empty();
+            }
+        }
+        catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+
+    public Optional<Post> deleteV2ResultSetUpdatable(long id){
+        String query = "SELECT * FROM post WHERE id = ?";
+
+        try(
+                Connection co = ConnectionProvider.getConnection();
+                PreparedStatement stmt = co.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        ){
+            stmt.setLong(1, id);
+            try( ResultSet rs = stmt.executeQuery() ){
+                if( rs.next() ){
+                    Post post = extractLine(rs);
+                    rs.deleteRow();
+                    return Optional.of(post);
+                }
+                else
+                    return Optional.empty();
+            }
+        }
+        catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     private Post extractLine(ResultSet rs) throws SQLException {
         if( rs.isAfterLast() || rs.isBeforeFirst() )

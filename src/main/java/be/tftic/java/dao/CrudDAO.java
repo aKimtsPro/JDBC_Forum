@@ -1,5 +1,6 @@
 package be.tftic.java.dao;
 
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
 

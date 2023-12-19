@@ -7,8 +7,7 @@ public class Main {
     public static void main(String[] args) {
 
         PostDAO dao = new PostDAO();
-        dao.getAll().forEach(System.out::println);
-
+        System.out.println( dao.delete(99L) );
     }
 
 }
